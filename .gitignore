@@ -1,0 +1,9 @@
+.DS_Store
+*.log
+.env
+.env.*
+node_modules/
+# Archived reference material is not part of the published site.
+assets/showcase/
+assets/lenis-*.svg
+preview-xingtu.png
