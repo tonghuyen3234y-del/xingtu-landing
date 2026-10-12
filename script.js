@@ -81,7 +81,7 @@
   });
   const compare=$('.compare'),slider=$('#compare-slider');
   let selectedExperience=null;
-  function setPreset(preset){compare.dataset.preset=preset;$('.demo-controls').dataset.preset=preset;document.querySelectorAll('.style-tabs button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===preset)));$('.demo-controls .small-label').textContent=`0${['portrait','warm','mono'].indexOf(preset)+1} / 03`;}
+  function setPreset(preset){compare.dataset.preset=preset;$('.demo-controls').dataset.preset=preset;document.querySelectorAll('.style-tabs button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===preset)));}
   slider.addEventListener('input',()=>compare.style.setProperty('--split',`${slider.value}%`));
   document.querySelectorAll('.style-tabs button').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.preset)));
   document.querySelectorAll('.showcase-card').forEach(card=>card.addEventListener('click',()=>{
