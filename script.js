@@ -7,7 +7,6 @@
   const smooth = x => x*x*(3-2*x);
   const mix = (a,b,t) => a+(b-a)*t;
   const sections = Object.fromEntries(['hero','why','description','showcase','manifesto','features','footer'].map(n=>[n,$(`.${n}`)]));
-  const items = [...document.querySelectorAll('.why-item')];
   const cards = [...document.querySelectorAll('.feature-card')];
   const track = $('.showcase-track');
   const filmWindow=$('.film-window');
@@ -32,50 +31,47 @@
     if(filmWindow.parentElement!==document.body)document.body.append(filmWindow);filmWindow.classList.add('film-continuity');
     const hero=clamp(scrollY/innerHeight);
     $('.hero-wordmark').style.transform=`translateY(${-hero*50}px) scale(${1+hero*.035})`;
-    const leadOut=segment(p.why,.06,.14);
-    $('.why-lead').style.opacity=1-leadOut;
-    $('.why-lead').style.transform=`translateY(${-leadOut*35}px)`;
-    items.forEach((item,i)=>{
-      const local=(p.why-.14)/.86*4-i,enter=smooth(clamp(local*5)),exit=smooth(segment(local,.82,1));
-      item.style.opacity=enter*(1-exit);item.style.transform=`translateY(${(1-enter)*55-exit*40}px)`;
-      item.classList.toggle('is-active',local>=0&&local<1);
-    });
-    const entry=smooth(segment(p.showcase,.06,.23)),gallery=segment(p.showcase,.23,.96);
+    const entry=smooth(segment(p.showcase,0,.14)),gallery=segment(p.showcase,.14,.9);
     track.style.transform=`translate3d(${-travel*gallery}px,0,0)`;
-    $('.showcase-heading').style.transform=`translateY(${-smooth(segment(p.showcase,.04,.22))*innerHeight*.6}px)`;
-    $('.showcase-heading').style.opacity=1-segment(p.showcase,.12,.23);
-    $('.showcase-window').style.transform=`translate3d(${(1-entry)*innerWidth*.62}px,${(1-entry)*innerHeight*.65}px,0) rotate(${(1-entry)*9}deg)`;
-    $('.showcase-window').style.opacity=segment(p.showcase,.06,.13);
-    const m=p.manifesto,open=smooth(segment(m,0,.27)),exit=smooth(segment(m,.75,1));
-    $('.film-window').style.clipPath=`inset(${mix(14,0,open)}% ${mix(10,0,open)}% round ${mix(30,0,open)}px)`;
-    $('.film-window').style.transform=`scale(${mix(.86,1,open)})`;
-    const filmStart=segment(scrollY,metrics.manifesto.top,metrics.manifesto.top+innerHeight*.2);
-    const filmEnd=1-smooth(segment(scrollY,metrics.features.top-innerHeight*.18,metrics.features.top));
-    filmWindow.style.opacity=scrollY<metrics.manifesto.top?0:filmStart*filmEnd;
-    filmWindow.style.visibility=scrollY>=metrics.manifesto.top&&scrollY<metrics.features.top?'visible':'hidden';
-    $('.film-copy').style.opacity=segment(m,.12,.3)*(1-segment(m,.65,.89));
-    $('.film-copy').style.transform=`translateY(${(1-open)*80-exit*80}px)`;
+    $('.showcase-heading').style.transform=`translateY(${-smooth(segment(p.showcase,.02,.14))*32}px)`;
+    $('.showcase-heading').style.opacity=1-smooth(segment(p.showcase,.04,.14));
+    $('.showcase-window').style.transform=`translate3d(${(1-entry)*innerWidth*.06}px,${(1-entry)*36}px,0)`;
+    const galleryExit=1-smooth(segment(scrollY,metrics.manifesto.top-innerHeight*.22,metrics.manifesto.top+innerHeight*.12));
+    $('.showcase-window').style.opacity=entry*galleryExit;
+    const m=p.manifesto;
+    const filmArrival=metrics.manifesto.top-innerHeight*.26;
+    const open=smooth(segment(scrollY,filmArrival,metrics.manifesto.top+innerHeight*.28));
+    filmWindow.style.clipPath=`inset(${mix(5,0,open)}% ${mix(4,0,open)}% round ${mix(16,0,open)}px)`;
+    filmWindow.style.transform=`scale(${mix(.97,1,open)})`;
+    const filmStart=smooth(segment(scrollY,filmArrival,metrics.manifesto.top+innerHeight*.08));
+    const filmEnd=1-smooth(segment(scrollY,metrics.features.top-innerHeight*.3,metrics.features.top+innerHeight*.12));
+    filmWindow.style.opacity=filmStart*filmEnd;
+    filmWindow.style.visibility=scrollY>=filmArrival&&filmEnd>0?'visible':'hidden';
+    $('.film-copy').style.opacity=smooth(segment(m,.05,.16))*(1-smooth(segment(m,.8,1)));
+    $('.film-copy').style.transform=`translateY(${(1-smooth(segment(m,0,.16)))*20}px)`;
     // The style lab now enters independently as the third chapter.
     $('.description').classList.add('creation-interactive');
     $('.description').style.setProperty('--creation-reveal',1);
     $('.description').style.setProperty('--canvas-reveal',1);
-    const d=p.description;
-    $('.description-frame').style.opacity=1-segment(d,.88,1);
-    $('.description-frame').style.transform=`translateY(${-smooth(segment(d,.88,1))*45}px)`;
+    $('.description-frame').style.opacity=1;
+    $('.description-frame').style.transform='none';
     cards.forEach((card,i)=>{
-      const entry=smooth(segment(p.features,.035+i*.155,.19+i*.155));
+      const entry=innerWidth<=900?1:smooth(segment(p.features,i*.12,.16+i*.12));
       card.style.opacity=entry;
-      card.style.transform=`translate3d(0,${(1-entry)*115}vh,0) rotate(${(1-entry)*(i%2?5:-5)}deg)`;
+      card.style.transform=`translate3d(0,${(1-entry)*48}px,0)`;
+      card.style.pointerEvents=entry>.8?'auto':'none';
+      card.tabIndex=entry>.8?0:-1;
     });
     dispatch();
   }
   function schedule(){if(!ticking){ticking=true;requestAnimationFrame(render);}}
-  function configureMotion(){lenis?.destroy();lenis=!media.matches&&window.Lenis?new Lenis({autoRaf:true,anchors:true,duration:1.12,smoothWheel:true}):null;lenis?.on('scroll',schedule);measure();syncVideos();}
+  function configureMotion(){lenis?.destroy();lenis=!media.matches&&window.Lenis?new Lenis({autoRaf:true,anchors:true,duration:.85,smoothWheel:true}):null;lenis?.on('scroll',schedule);measure();syncVideos();}
   track.addEventListener('focusin',event=>{
     const card=event.target.closest('.showcase-card,.showcase-end');if(!card||media.matches)return;
+    const rect=card.getBoundingClientRect();if(rect.left>=0&&rect.right<=innerWidth)return;
     const ratio=clamp((card.offsetLeft-innerWidth*.15)/Math.max(1,travel));
     $('.showcase-window').scrollLeft=0;
-    const top=metrics.showcase.top+(.23+ratio*.73)*(metrics.showcase.height-innerHeight);
+    const top=metrics.showcase.top+(.14+ratio*.76)*(metrics.showcase.height-innerHeight);
     if(lenis)lenis.scrollTo(top,{immediate:true});else scrollTo(0,top);
   });
   addEventListener('languagechange',()=>{
@@ -96,7 +92,7 @@
   // Video decoding is limited to visible work, and disabled for reduced motion/data saving.
   const videos=[...document.querySelectorAll('video[data-video]')],visible=new Set();
   function syncVideos(){
-    const eligible=[...visible].filter(v=>!document.hidden&&!media.matches&&!navigator.connection?.saveData&&!v.dataset.userPaused).slice(0,2);
+    const eligible=[...visible].filter(v=>!document.hidden&&!media.matches&&!navigator.connection?.saveData&&!v.dataset.userPaused).sort((a,b)=>Number(b.classList.contains('portrait-film'))-Number(a.classList.contains('portrait-film'))).slice(0,2);
     videos.forEach(v=>{if(eligible.includes(v)){if(!v.getAttribute('src')){v.src=v.dataset.video;v.load();}if(v.paused)v.play().catch(()=>{});}else v.pause();});
   }
   const observer=new IntersectionObserver(entries=>{entries.forEach(e=>e.isIntersecting?visible.add(e.target):visible.delete(e.target));syncVideos();},{threshold:.15});

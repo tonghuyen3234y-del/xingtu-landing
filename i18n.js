@@ -1,4 +1,8 @@
 const translations = {
+  "why.keyword.0": {"zh":"真实人像","en":"Natural portraits"},
+  "why.keyword.1": {"zh":"情绪色彩","en":"Expressive color"},
+  "why.keyword.2": {"zh":"光影细节","en":"Light & detail"},
+  "why.keyword.3": {"zh":"自由创作","en":"Creative freedom"},
   "skip": {
     "zh": "跳至内容",
     "en": "Skip to content"
