@@ -558,3 +558,27 @@ html[lang=zh-CN] #orbit-title{white-space:nowrap;font-size:clamp(54px,7.4vw,120p
 html[lang=en] .display{letter-spacing:-.01em}
 html[lang=en] .footer-grid>div p{letter-spacing:-.015em}
 html[lang=en] .showcase-end h3{letter-spacing:-.01em}
+
+/* Continuous dark palette, matching the opening chapters. */
+.description,.description-frame,.features,.footer{background:transparent;color:var(--white)}
+.description{height:150svh}
+.description-frame::before{background:none}
+.description-frame::after{display:none}
+.description-top,.description-frame>p,.demo-note,.demo-controls .small-label{color:#b6bfa9}
+.style-tabs button,.detail-presets button,.sticker-toggle{color:#e9ede4;border-color:#ffffff40;background:#13170fcc}
+.style-tabs button[aria-pressed=true],.detail-presets button[aria-pressed=true]{color:#101408;background:var(--accent);border-color:var(--accent)}
+.style-tabs button:hover{border-color:var(--accent)}
+.feature-card{background:#151a12f5;color:var(--white);border-color:#64705270;box-shadow:0 12px 40px #0004}
+.feature-card .feature-number,.features-title h2,.footer-grid h2 span{color:var(--accent)}
+.feature-card p,.footer-bottom span{color:#b6bfa9}
+.feature-card:hover,.feature-card:focus-visible{border-color:var(--accent);background:#1a2115}
+.feature-dialog{background:#13180f;color:var(--white)}
+.detail-body,.detail-note{color:#b6bfa9}
+.detail-close{background:#20271a;color:var(--white);border-color:#ffffff40}
+.showcase{height:450svh}
+.showcase-end{width:100vw;padding-right:8vw}
+.showcase-track{padding-right:0}
+@media(max-width:600px){.description{height:155svh}.showcase{height:410svh}.showcase-end{width:90vw;padding-right:7vw}}
+@media(prefers-reduced-motion:reduce){.description,.features,.footer{background:transparent}.description{height:auto}.showcase{height:auto}.showcase-end{width:90vw}}
+
+@media(min-width:901px){.download-links{width:43%;max-width:620px}}

@@ -11,8 +11,8 @@ const states = [
   {p:[-.1,-1.75],s:.045,r:[0,90,0],type:0},
   {p:[.15,-.4],s:.02,r:[-45,-135,-45],type:0},
   {p:[.15,-.4],s:.02,r:[45,-315,-45],type:0},
-  {p:[-.2,-.35],s:.02,r:[-90,-405,-45],type:0},
-  {p:[-1.2,-.6],s:.05,r:[-90,-405,-45],type:0},
+  {p:[.35,-.85],s:.016,r:[-90,-405,-45],type:0},
+  {p:[.35,-.85],s:.016,r:[-90,-405,-45],type:0},
   {p:[-1.6,-.6],s:.05,r:[-90,-405,-45],type:0},
   {p:[.16,-1.38],s:.05,r:[0,200,-16],type:1},
   {p:[0,-.68],s:.04,r:[0,-14,-16],type:1},
@@ -59,7 +59,7 @@ function initialize(){
     needsRender=true;
     if(!models.length||!data)return;
     const {metrics:m,scroll:y}=data;
-    const thresholds=[0,m.why.top,m.why.top+(m.why.height-innerHeight)*.65,m.showcase.top,m.showcase.top+(m.showcase.height-innerHeight)*.75,m.manifesto.top,m.description.top,m.features.top,m.footer.top];
+    const thresholds=[0,m.why.top,m.why.top+(m.why.height-innerHeight)*.65,m.description.top,m.description.top+(m.description.height-innerHeight)*.65,m.showcase.top,m.manifesto.top,m.features.top,m.footer.top];
     let index=thresholds.findIndex(t=>t>y)-1;if(index<0)index=thresholds.length-1;
     const a=states[index],b=states[Math.min(index+1,states.length-1)];
     const t=index===states.length-1?0:clamp((y-thresholds[index])/(thresholds[index+1]-thresholds[index]));
@@ -69,7 +69,7 @@ function initialize(){
     light1.color.copy(lime).lerp(lightColor,blend);light2.color.copy(light1.color);
     light1.intensity=lerp(.35,1,blend);light2.intensity=lerp(.15,1,blend);
     points.material.color.set('#a4b896').lerp(pointGrey,blend);points.material.opacity=lerp(.35,.18,blend);
-    const inFilm=y>=m.manifesto.top&&y<m.orbit.top;
+    const inFilm=y>=m.manifesto.top&&y<m.features.top;
     const filmProgress=data.progress.manifesto;
     material.opacity=inFilm?1-Math.sin(Math.PI*filmProgress)*.88:1;
     if(motion.matches){

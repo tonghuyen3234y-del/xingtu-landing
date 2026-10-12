@@ -6,45 +6,29 @@
   const segment = (p,a,b) => clamp((p-a)/(b-a));
   const smooth = x => x*x*(3-2*x);
   const mix = (a,b,t) => a+(b-a)*t;
-  const sections = Object.fromEntries(['hero','why','showcase','manifesto','orbit','description','features','footer'].map(n=>[n,$(`.${n}`)]));
+  const sections = Object.fromEntries(['hero','why','description','showcase','manifesto','features','footer'].map(n=>[n,$(`.${n}`)]));
   const items = [...document.querySelectorAll('.why-item')];
   const cards = [...document.querySelectorAll('.feature-card')];
-  const photos = [...document.querySelectorAll('.orbit-photo')];
-  const track = $('.showcase-track'), bridge=$('.photo-bridge');
-  const glow=document.createElement('div');glow.className='creation-glow';glow.setAttribute('aria-hidden','true');document.body.append(glow);
+  const track = $('.showcase-track');
   const filmWindow=$('.film-window');
-  // The same video continues behind the first incoming photographs.
   document.body.append(filmWindow);filmWindow.classList.add('film-continuity');
-  // Entry poses: x/y in viewport units, followed by the resting pose and rotation.
-  const poses = [
-    [-70,-25,-34,-25,-16, .84], [65,-60,18,-30,12,.77],
-    [80,15,39,-14,-10,.78], [-70,70,-35,20,9,.8],
-    [5,80,0,35,-7,.72], [-10,-75,-7,-36,8,.64],
-    [55,65,28,28,-6,1]
-  ];
-  let metrics={},travel=0,lenis=null,ticking=false,compareTarget={};
+  let metrics={},travel=0,lenis=null,ticking=false;
   function measure(){
     metrics=Object.fromEntries(Object.entries(sections).map(([n,e])=>[n,{top:e.getBoundingClientRect().top+scrollY,height:e.offsetHeight}]));
     travel=Math.max(0,track.scrollWidth-innerWidth);
-    const r=$('.compare').getBoundingClientRect();
-    // Compare's target when its sticky frame first reaches the top of the viewport.
-    const frame=$('.description-frame').getBoundingClientRect();
-    compareTarget={x:r.left,y:r.top-frame.top,w:r.width,h:r.height};
     schedule();
   }
   const progress=n=>clamp((scrollY-metrics[n].top)/Math.max(1,metrics[n].height-innerHeight));
   function render(){
     ticking=false;if(!metrics.hero)return;
     const p=Object.fromEntries(Object.keys(sections).map(n=>[n,progress(n)]));
-    const transitionStart=metrics.orbit.top+(metrics.orbit.height-innerHeight)*.66;
-    const blend=smooth(segment(scrollY,transitionStart,metrics.description.top));
-    const shade=Math.round(mix(0,239,blend));
-    document.documentElement.style.setProperty('--scene-tone',`rgb(${shade} ${shade} ${shade})`);
-    document.documentElement.style.setProperty('--light-blend',blend);
-    $('.site-header').classList.toggle('is-light',blend>.6);
-    document.body.classList.toggle('light-scene',blend>.6);
+    const blend=0;
+    document.documentElement.style.setProperty('--scene-tone','#000');
+    document.documentElement.style.setProperty('--light-blend',0);
+    $('.site-header').classList.remove('is-light');
+    document.body.classList.remove('light-scene');
     const dispatch=()=>window.dispatchEvent(new CustomEvent('sceneprogress',{detail:{progress:p,metrics,scroll:scrollY,lightBlend:blend}}));
-    if(media.matches){if(filmWindow.parentElement!==$('.manifesto-frame'))$('.manifesto-frame').prepend(filmWindow);filmWindow.classList.remove('film-continuity');filmWindow.style.opacity='1';filmWindow.style.visibility='visible';bridge.style.opacity=0;glow.style.opacity=0;$('.description').classList.add('creation-interactive');$('.description').style.setProperty('--creation-reveal',1);$('.description').style.setProperty('--canvas-reveal',1);$('.description').style.setProperty('--scan-position','50%');photos.forEach(photo=>{photo.style.pointerEvents='auto';photo.querySelector('button').tabIndex=0;});dispatch();return;}
+    if(media.matches){if(filmWindow.parentElement!==$('.manifesto-frame'))$('.manifesto-frame').prepend(filmWindow);filmWindow.classList.remove('film-continuity');filmWindow.style.opacity='1';filmWindow.style.visibility='visible';$('.description').classList.add('creation-interactive');$('.description').style.setProperty('--creation-reveal',1);$('.description').style.setProperty('--canvas-reveal',1);dispatch();return;}
     if(filmWindow.parentElement!==document.body)document.body.append(filmWindow);filmWindow.classList.add('film-continuity');
     const hero=clamp(scrollY/innerHeight);
     $('.hero-wordmark').style.transform=`translateY(${-hero*50}px) scale(${1+hero*.035})`;
@@ -66,48 +50,15 @@
     $('.film-window').style.clipPath=`inset(${mix(14,0,open)}% ${mix(10,0,open)}% round ${mix(30,0,open)}px)`;
     $('.film-window').style.transform=`scale(${mix(.86,1,open)})`;
     const filmStart=segment(scrollY,metrics.manifesto.top,metrics.manifesto.top+innerHeight*.2);
-    const filmEnd=1-smooth(segment(p.orbit,0,.23));
+    const filmEnd=1-smooth(segment(scrollY,metrics.features.top-innerHeight*.18,metrics.features.top));
     filmWindow.style.opacity=scrollY<metrics.manifesto.top?0:filmStart*filmEnd;
-    filmWindow.style.visibility=scrollY>=metrics.manifesto.top&&p.orbit<.23?'visible':'hidden';
+    filmWindow.style.visibility=scrollY>=metrics.manifesto.top&&scrollY<metrics.features.top?'visible':'hidden';
     $('.film-copy').style.opacity=segment(m,.12,.3)*(1-segment(m,.65,.89));
     $('.film-copy').style.transform=`translateY(${(1-open)*80-exit*80}px)`;
-    const o=p.orbit,collapse=smooth(segment(o,.7,1));
-    $('.orbit-copy').style.opacity=segment(o,0,.09)*(1-segment(o,.62,.78));
-    $('.orbit-copy').style.transform=`translateY(${(1-smooth(segment(o,0,.15)))*50-collapse*60}px)`;
-    photos.forEach((photo,i)=>{
-      const pose=poses[i],enter=smooth(segment(o,.015+i*.045,.2+i*.045));
-      const x=mix(pose[0],pose[2],enter),y=mix(pose[1],pose[3],enter),main=i===6;
-      const depart=smooth(segment(o,.61+i*.009,.86+i*.009));
-      photo.style.transform=`translate3d(${(x+(main?0:Math.sign(pose[2]||1)*depart*30))*innerWidth/100}px,${(y+(main?0:Math.sign(pose[3])*depart*25))*innerHeight/100}px,0) rotate(${pose[4]*enter}deg) scale(${mix(.65,pose[5],enter)})`;
-      photo.style.opacity=main?(scrollY<transitionStart?enter:0):enter*(1-depart);
-      photo.style.filter=main?'none':`blur(${depart*5}px)`;
-      const active=enter>.85&&o<.61;
-      photo.style.pointerEvents=active?'auto':'none';photo.querySelector('button').tabIndex=active?0:-1;
-    });
-    $('.orbit-caption').style.opacity=segment(o,.45,.55)*(1-segment(o,.6,.66));
-    const arrival=metrics.description.top;
-    const t=smooth(segment(scrollY,transitionStart,arrival));
-    const handoff=smooth(segment(scrollY,arrival,arrival+innerHeight*.08));
-    const inBridge=scrollY>=transitionStart&&scrollY<arrival+innerHeight*.08;
-    const startW=photos[6].offsetWidth,startH=photos[6].offsetHeight;
-    const startX=innerWidth*.78-startW/2,startY=innerHeight*.78-startH/2;
-    const arc=Math.sin(t*Math.PI)*(innerWidth<600?25:65);
-    const x=mix(startX,compareTarget.x,t)-arc,y=mix(startY,compareTarget.y,t)-arc;
-    bridge.style.opacity=inBridge?1-handoff:0;
-    bridge.style.left=`${x}px`;bridge.style.top=`${y}px`;
-    bridge.style.width=`${mix(startW,compareTarget.w,t)}px`;
-    bridge.style.height=`${mix(startH,compareTarget.h,t)}px`;
-    bridge.style.transform=`rotate(${mix(-6,0,t)}deg)`;
-    bridge.style.borderRadius=`${mix(0,4,t)}px`;
-    glow.style.opacity=scrollY>=transitionStart&&scrollY<arrival?Math.sin(Math.PI*t)*.85:0;
-    glow.style.setProperty('--glow-x',`${x+mix(startW,compareTarget.w,t)/2}px`);
-    glow.style.setProperty('--glow-y',`${y+mix(startH,compareTarget.h,t)/2}px`);
-    const reveal=smooth(segment(scrollY,arrival,arrival+innerHeight*.22));
-    $('.description').classList.toggle('creation-interactive',reveal>=1);
-    $('.description').style.setProperty('--creation-reveal',reveal);
-    $('.description').style.setProperty('--canvas-reveal',scrollY>=arrival?1:0);
-    $('.description').style.setProperty('--scan-position',`${mix(0,50,reveal)}%`);
-    if(selectedExperience){const src=scrollY<arrival+innerHeight*.22?'./assets/photos/portrait.jpg':`./assets/photos/${selectedExperience}.jpg`;document.querySelectorAll('.compare img').forEach(img=>{if(img.getAttribute('src')!==src)img.src=src;});}
+    // The style lab now enters independently as the third chapter.
+    $('.description').classList.add('creation-interactive');
+    $('.description').style.setProperty('--creation-reveal',1);
+    $('.description').style.setProperty('--canvas-reveal',1);
     const d=p.description;
     $('.description-frame').style.opacity=1-segment(d,.88,1);
     $('.description-frame').style.transform=`translateY(${-smooth(segment(d,.88,1))*45}px)`;
