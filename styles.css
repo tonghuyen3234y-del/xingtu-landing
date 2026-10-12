@@ -583,4 +583,4 @@ html[lang=en] .showcase-end h3{letter-spacing:-.01em}
 
 @media(min-width:901px){.download-links{width:43%;max-width:620px}}
 /* Reach the color lab within the first three viewport lengths. */
-@media(prefers-reduced-motion:no-preference){.why{height:160svh}}
+@media(prefers-reduced-motion:no-preference){.why{height:120svh}}
